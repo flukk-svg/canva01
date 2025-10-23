@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดการอุปกรณ์คอมพิวเตอร์</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="min-h-full"><!-- Header -->
+   <header class="bg-white shadow-lg border-b-4 border-blue-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="flex justify-between items-center py-6">
+      <div>
+       <h1 id="app-title" class="text-3xl font-bold text-gray-900">ระบบจัดการอุปกรณ์คอมพิวเตอร์</h1>
+       <p id="company-name" class="text-sm text-gray-600 mt-1">บริษัท ABC จำกัด</p>
+      </div>
+      <div class="flex space-x-4"><button id="nav-form" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"> เพิ่มอุปกรณ์ </button> <button id="nav-report" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"> รายงาน </button> <button id="nav-dashboard" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"> แดชบอร์ด </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"><!-- Form Section -->
+    <div id="form-section" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+     <h2 class="text-2xl font-bold text-gray-900 mb-6">เพิ่มข้อมูลอุปกรณ์ใหม่</h2>
+     <form id="equipment-form" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <div><label for="equipment-name" class="block text-sm font-medium text-gray-700 mb-2">ชื่ออุปกรณ์</label> <input type="text" id="equipment-name" name="equipment-name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="เช่น Dell OptiPlex 7090">
+       </div>
+       <div><label for="equipment-type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทอุปกรณ์</label> <select id="equipment-type" name="equipment-type" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">เลือกประเภท</option> <option value="Desktop">เครื่องคอมพิวเตอร์ตั้งโต๊ะ</option> <option value="Laptop">แล็ปท็อป</option> <option value="Monitor">จอภาพ</option> <option value="Printer">เครื่องพิมพ์</option> <option value="Server">เซิร์ฟเวอร์</option> <option value="Network">อุปกรณ์เครือข่าย</option> <option value="Other">อื่นๆ</option> </select>
+       </div>
+       <div><label for="user-name" class="block text-sm font-medium text-gray-700 mb-2">ผู้ใช้งาน</label> <input type="text" id="user-name" name="user-name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ชื่อ-นามสกุล">
+       </div>
+       <div><label for="department" class="block text-sm font-medium text-gray-700 mb-2">แผนก</label> <select id="department" name="department" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">เลือกแผนก</option> <option value="IT">แผนกไอที</option> <option value="HR">แผนกทรัพยากรบุคคล</option> <option value="Finance">แผนกการเงิน</option> <option value="Marketing">แผนกการตลาด</option> <option value="Sales">แผนกขาย</option> <option value="Operations">แผนกปฏิบัติการ</option> <option value="Management">แผนกบริหาร</option> </select>
+       </div>
+       <div class="md:col-span-2"><label for="serial-number" class="block text-sm font-medium text-gray-700 mb-2">หมายเลขซีเรียล</label> <input type="text" id="serial-number" name="serial-number" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="เช่น ABC123456789">
+       </div>
+       <div class="md:col-span-2"><label for="equipment-image" class="block text-sm font-medium text-gray-700 mb-2">รูปภาพอุปกรณ์</label> <input type="file" id="equipment-image" name="equipment-image" accept="image/*" capture="environment" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <p class="text-sm text-gray-500 mt-1">รองรับไฟล์ JPG, PNG (ขนาดไม่เกิน 2MB)</p>
+        <div id="image-preview" class="mt-4 hidden"><img id="preview-img" class="max-w-xs h-auto rounded-lg shadow-md" alt="ตัวอย่างรูปภาพ">
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-end"><button type="submit" id="submit-btn" class="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"> <span id="submit-text">บันทึกข้อมูล</span>
+        <div id="submit-spinner" class="loading-spinner hidden"></div></button>
+      </div>
+     </form>
+    </div><!-- Report Section -->
+    <div id="report-section" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">รายงานอุปกรณ์</h2>
+      <div class="bg-blue-100 px-4 py-2 rounded-lg"><span class="text-blue-800 font-medium">จำนวนทั้งหมด: </span> <span id="total-count" class="text-blue-900 font-bold text-lg">0</span> <span class="text-blue-800"> เครื่อง</span>
+      </div>
+     </div>
+     <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+       <thead class="bg-gray-50">
+        <tr>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รูปภาพ</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่ออุปกรณ์</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ใช้งาน</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ซีเรียล</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่เพิ่ม</th>
+        </tr>
+       </thead>
+       <tbody id="equipment-table" class="bg-white divide-y divide-gray-200"><!-- Data will be populated here -->
+       </tbody>
+      </table>
+     </div>
+    </div><!-- Dashboard Section -->
+    <div id="dashboard-section" class="hidden">
+     <h2 class="text-2xl font-bold text-gray-900 mb-6">แดชบอร์ด</h2><!-- Stats Cards -->
+     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <div class="flex items-center">
+        <div class="p-3 rounded-full bg-blue-100">
+         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+         </svg>
+        </div>
+        <div class="ml-4">
+         <p class="text-sm font-medium text-gray-600">อุปกรณ์ทั้งหมด</p>
+         <p id="dashboard-total" class="text-2xl font-bold text-gray-900">0</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <div class="flex items-center">
+        <div class="p-3 rounded-full bg-green-100">
+         <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+         </svg>
+        </div>
+        <div class="ml-4">
+         <p class="text-sm font-medium text-gray-600">แผนกที่มีมากสุด</p>
+         <p id="top-department" class="text-lg font-bold text-gray-900">-</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <div class="flex items-center">
+        <div class="p-3 rounded-full bg-purple-100">
+         <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+         </svg>
+        </div>
+        <div class="ml-4">
+         <p class="text-sm font-medium text-gray-600">ประเภทที่นิยม</p>
+         <p id="top-type" class="text-lg font-bold text-gray-900">-</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <div class="flex items-center">
+        <div class="p-3 rounded-full bg-yellow-100">
+         <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+         </svg>
+        </div>
+        <div class="ml-4">
+         <p class="text-sm font-medium text-gray-600">เพิ่มวันนี้</p>
+         <p id="today-count" class="text-2xl font-bold text-gray-900">0</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Charts -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <h3 class="text-lg font-bold text-gray-900 mb-4">จำนวนอุปกรณ์ตามแผนก</h3>
+       <canvas id="department-chart" width="400" height="300"></canvas>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6">
+       <h3 class="text-lg font-bold text-gray-900 mb-4">ประเภทอุปกรณ์</h3>
+       <canvas id="type-chart" width="400" height="300"></canvas>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+  
+        let equipmentData = [];
+        let currentSection = 'form';
+        let departmentChart = null;
+        let typeChart = null;
+
+        // Default configuration
+        const defaultConfig = {
+            app_title: "ระบบจัดการอุปกรณ์คอมพิวเตอร์",
+            company_name: "บริษัท ABC จำกัด",
+            primary_color: "#3b82f6",
+            surface_color: "#ffffff",
+            text_color: "#1f2937",
+            success_color: "#10b981",
+            accent_color: "#8b5cf6"
+        };
+
+        // Data handler for SDK
+        const dataHandler = {
+            onDataChanged(data) {
+                equipmentData = data;
+                updateUI();
+            }
+        };
+
+        // Element SDK functions
+        async function render(config) {
+            const appTitle = config.app_title || defaultConfig.app_title;
+            const companyName = config.company_name || defaultConfig.company_name;
+            
+            document.getElementById('app-title').textContent = appTitle;
+            document.getElementById('company-name').textContent = companyName;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.primary_color || defaultConfig.primary_color,
+                        set: (value) => {
+                            config.primary_color = value;
+                            window.elementSdk.setConfig({ primary_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.surface_color || defaultConfig.surface_color,
+                        set: (value) => {
+                            config.surface_color = value;
+                            window.elementSdk.setConfig({ surface_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.text_color || defaultConfig.text_color,
+                        set: (value) => {
+                            config.text_color = value;
+                            window.elementSdk.setConfig({ text_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.success_color || defaultConfig.success_color,
+                        set: (value) => {
+                            config.success_color = value;
+                            window.elementSdk.setConfig({ success_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.accent_color || defaultConfig.accent_color,
+                        set: (value) => {
+                            config.accent_color = value;
+                            window.elementSdk.setConfig({ accent_color: value });
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["app_title", config.app_title || defaultConfig.app_title],
+                ["company_name", config.company_name || defaultConfig.company_name]
+            ]);
+        }
+
+        document.getElementById('equipment-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submit-btn');
+  const submitText = document.getElementById('submit-text');
+  const submitSpinner = document.getElementById('submit-spinner');
+
+  submitBtn.disabled = true;
+  submitText.textContent = 'กำลังบันทึก...';
+  submitSpinner.classList.remove('hidden');
+
+  try {
+    const formData = new FormData(e.target);
+    const imageFile = formData.get('equipment-image');
+    let imageData = '';
+
+    if (imageFile && imageFile.size > 0) {
+      imageData = await fileToBase64(imageFile);
+    }
+
+    const payload = {
+      equipment_name: formData.get('equipment-name'),
+      equipment_type: formData.get('equipment-type'),
+      user_name: formData.get('user-name'),
+      department: formData.get('department'),
+      serial_number: formData.get('serial-number'),
+      image_data: imageData
+    };
+
+    // ส่งข้อมูลไป Google Apps Script Web App
+    const response = await fetch('YOUR_WEB_APP_URL', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+      e.target.reset();
+      document.getElementById('image-preview').classList.add('hidden');
+      if(result.photoUrl) console.log('URL รูป:', result.photoUrl);
+    } else {
+      showMessage('เกิดข้อผิดพลาด: ' + result.message, 'error');
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitText.textContent = 'บันทึกข้อมูล';
+    submitSpinner.classList.add('hidden');
+  }
+});
+        // Helper functions
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 fade-in ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function updateUI() {
+            updateReport();
+            if (currentSection === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        function updateReport() {
+            const totalCount = document.getElementById('total-count');
+            const tableBody = document.getElementById('equipment-table');
+            
+            totalCount.textContent = equipmentData.length;
+            
+            tableBody.innerHTML = '';
+            equipmentData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                const createdDate = new Date(item.created_at).toLocaleDateString('th-TH');
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${item.image_data ? 
+                            `<img src="${item.image_data}" alt="รูปอุปกรณ์" class="w-16 h-16 object-cover rounded-lg">` : 
+                            '<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">ไม่มีรูป</div>'
+                        }
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.equipment_name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.equipment_type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.user_name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${item.serial_number}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${createdDate}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateDashboard() {
+            // Update stats
+            document.getElementById('dashboard-total').textContent = equipmentData.length;
+            
+            // Calculate department stats
+            const departmentStats = {};
+            const typeStats = {};
+            let todayCount = 0;
+            const today = new Date().toDateString();
+            
+            equipmentData.forEach(item => {
+                // Department stats
+                departmentStats[item.department] = (departmentStats[item.department] || 0) + 1;
+                
+                // Type stats
+                typeStats[item.equipment_type] = (typeStats[item.equipment_type] || 0) + 1;
+                
+                // Today count
+                if (new Date(item.created_at).toDateString() === today) {
+                    todayCount++;
+                }
+            });
+            
+            // Update top department
+            const topDepartment = Object.keys(departmentStats).reduce((a, b) => 
+                departmentStats[a] > departmentStats[b] ? a : b, '-');
+            document.getElementById('top-department').textContent = topDepartment;
+            
+            // Update top type
+            const topType = Object.keys(typeStats).reduce((a, b) => 
+                typeStats[a] > typeStats[b] ? a : b, '-');
+            document.getElementById('top-type').textContent = topType;
+            
+            // Update today count
+            document.getElementById('today-count').textContent = todayCount;
+            
+            // Update charts
+            updateCharts(departmentStats, typeStats);
+        }
+
+        function updateCharts(departmentStats, typeStats) {
+            const ctx1 = document.getElementById('department-chart').getContext('2d');
+            const ctx2 = document.getElementById('type-chart').getContext('2d');
+            
+            // Destroy existing charts
+            if (departmentChart) departmentChart.destroy();
+            if (typeChart) typeChart.destroy();
+            
+            // Department chart
+            departmentChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(departmentStats),
+                    datasets: [{
+                        label: 'จำนวนอุปกรณ์',
+                        data: Object.values(departmentStats),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Type chart
+            typeChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(typeStats),
+                    datasets: [{
+                        data: Object.values(typeStats),
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(6, 182, 212, 0.8)',
+                            'rgba(156, 163, 175, 0.8)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('nav-form').addEventListener('click', () => showSection('form'));
+        document.getElementById('nav-report').addEventListener('click', () => showSection('report'));
+        document.getElementById('nav-dashboard').addEventListener('click', () => showSection('dashboard'));
+
+        // Initialize app
+        initializeApp();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'992ea15cf2cc10ca',t:'MTc2MTE5NTIwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
